@@ -1,0 +1,24 @@
+.resultPage {
+  background-color: #A2C7D7;
+  height: 100vh;  // vh:视窗高度
+
+  .title {
+    color: #fff;
+    text-align: center;
+    padding-top: 48px;
+  }
+
+  .subTitle {
+    color: #fff;
+    margin-bottom: 48px;
+  }
+
+  .enterBtn {
+    width: 60vw;  // vw:视窗宽度
+  }
+
+  .headerBg {
+    width: 100%;
+  }
+}
+
