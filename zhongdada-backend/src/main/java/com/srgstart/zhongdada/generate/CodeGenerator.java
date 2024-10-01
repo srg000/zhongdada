@@ -14,25 +14,22 @@ import java.io.Writer;
 
 /**
  * 代码生成器
- *
- * @author <a href="https://github.com/liyupi">程序员鱼皮</a>
- * @from <a href="https://www.code-nav.cn">编程导航学习圈</a>
  */
 public class CodeGenerator {
 
     /**
      * 用法：修改生成参数和生成路径，注释掉不需要的生成逻辑，然后运行即可
      *
-     * @param args
-     * @throws TemplateException
-     * @throws IOException
+     * @param args 参数
+     * @throws TemplateException 模板异常
+     * @throws IOException IO异常
      */
     public static void main(String[] args) throws TemplateException, IOException {
         // 指定生成参数
         String packageName = "com.srgstart.zhongdada";
-        String dataName = "用户评论";
-        String dataKey = "userComment";
-        String upperDataKey = "UserComment";
+        String dataName = "用户答案";
+        String dataKey = "userAnswer";
+        String upperDataKey = "UserAnswer";
 
         // 封装生成参数
         Map<String, Object> dataModel = new HashMap<>();
@@ -95,8 +92,8 @@ public class CodeGenerator {
      * @param inputPath  模板文件输入路径
      * @param outputPath 输出路径
      * @param model      数据模型
-     * @throws IOException
-     * @throws TemplateException
+     * @throws IOException IO 异常
+     * @throws TemplateException 模板异常
      */
     public static void doGenerate(String inputPath, String outputPath, Object model) throws IOException, TemplateException {
         // new 出 Configuration 对象，参数为 FreeMarker 版本号
