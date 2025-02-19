@@ -1,39 +1,38 @@
 package com.srgstart.zhongdada.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.srgstart.zhongdada.common.ErrorCode;
 import com.srgstart.zhongdada.constant.CommonConstant;
 import com.srgstart.zhongdada.exception.BusinessException;
 import com.srgstart.zhongdada.exception.ThrowUtils;
+import com.srgstart.zhongdada.mapper.PostFavourMapper;
 import com.srgstart.zhongdada.mapper.PostMapper;
 import com.srgstart.zhongdada.mapper.PostThumbMapper;
 import com.srgstart.zhongdada.model.dto.post.PostQueryRequest;
 import com.srgstart.zhongdada.model.entity.Post;
 import com.srgstart.zhongdada.model.entity.PostFavour;
 import com.srgstart.zhongdada.model.entity.PostThumb;
+import com.srgstart.zhongdada.model.entity.User;
 import com.srgstart.zhongdada.model.vo.PostVO;
 import com.srgstart.zhongdada.model.vo.UserVO;
 import com.srgstart.zhongdada.service.PostService;
-import com.srgstart.zhongdada.common.ErrorCode;
-import com.srgstart.zhongdada.mapper.PostFavourMapper;
-import com.srgstart.zhongdada.model.entity.User;
 import com.srgstart.zhongdada.service.UserService;
 import com.srgstart.zhongdada.utils.SqlUtils;
-import java.util.ArrayList;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import lombok.extern.slf4j.Slf4j;
-import cn.hutool.core.collection.CollUtil;
-import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.stereotype.Service;
 
 /**
  * 帖子服务实现

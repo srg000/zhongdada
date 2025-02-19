@@ -1,5 +1,6 @@
 # 数据库初始化
-# @author <a href="https://github.com/srg000">程序员柊泓迅</a>
+# @author <a href="https://github.com/liyupi">程序员鱼皮</a>
+# @from <a href="https://yupi.icu">编程导航知识星球</a>
 
 -- 创建库
 create database if not exists zhongdada;
@@ -23,8 +24,7 @@ create table if not exists user
     updateTime   datetime     default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
     isDelete     tinyint      default 0                 not null comment '是否删除',
     index idx_unionId (unionId)
-    ) comment '用户' collate = utf8mb4_unicode_ci;
-
+) comment '用户' collate = utf8mb4_unicode_ci;
 
 -- 应用表
 create table if not exists app
@@ -44,8 +44,7 @@ create table if not exists app
     updateTime      datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
     isDelete        tinyint  default 0                 not null comment '是否删除',
     index idx_appName (appName)
-    ) comment '应用' collate = utf8mb4_unicode_ci;
-
+) comment '应用' collate = utf8mb4_unicode_ci;
 
 -- 题目表
 create table if not exists question
@@ -58,8 +57,7 @@ create table if not exists question
     updateTime      datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
     isDelete        tinyint  default 0                 not null comment '是否删除',
     index idx_appId (appId)
-    ) comment '题目' collate = utf8mb4_unicode_ci;
-
+) comment '题目' collate = utf8mb4_unicode_ci;
 
 -- 评分结果表
 create table if not exists scoring_result
@@ -76,8 +74,7 @@ create table if not exists scoring_result
     updateTime       datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
     isDelete         tinyint  default 0                 not null comment '是否删除',
     index idx_appId (appId)
-    ) comment '评分结果' collate = utf8mb4_unicode_ci;
-
+) comment '评分结果' collate = utf8mb4_unicode_ci;
 
 -- 用户答题记录表
 create table if not exists user_answer
@@ -98,5 +95,4 @@ create table if not exists user_answer
     isDelete        tinyint  default 0                 not null comment '是否删除',
     index idx_appId (appId),
     index idx_userId (userId)
-    ) comment '用户答题记录' collate = utf8mb4_unicode_ci;
-
+) comment '用户答题记录' collate = utf8mb4_unicode_ci;

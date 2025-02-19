@@ -3,27 +3,28 @@ package com.srgstart.zhongdada.service.impl;
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.srgstart.zhongdada.constant.UserConstant;
-import com.srgstart.zhongdada.exception.BusinessException;
-import com.srgstart.zhongdada.model.vo.LoginUserVO;
-import com.srgstart.zhongdada.model.vo.UserVO;
 import com.srgstart.zhongdada.common.ErrorCode;
 import com.srgstart.zhongdada.constant.CommonConstant;
+import com.srgstart.zhongdada.constant.UserConstant;
+import com.srgstart.zhongdada.exception.BusinessException;
 import com.srgstart.zhongdada.mapper.UserMapper;
 import com.srgstart.zhongdada.model.dto.user.UserQueryRequest;
 import com.srgstart.zhongdada.model.entity.User;
 import com.srgstart.zhongdada.model.enums.UserRoleEnum;
+import com.srgstart.zhongdada.model.vo.LoginUserVO;
+import com.srgstart.zhongdada.model.vo.UserVO;
 import com.srgstart.zhongdada.service.UserService;
 import com.srgstart.zhongdada.utils.SqlUtils;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 用户服务实现

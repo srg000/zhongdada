@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * App类型枚举
+ * App应用类型枚举
  */
 public enum AppTypeEnum {
 

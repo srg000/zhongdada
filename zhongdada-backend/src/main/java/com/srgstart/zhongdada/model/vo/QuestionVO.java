@@ -1,9 +1,13 @@
 package com.srgstart.zhongdada.model.vo;
 
 import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.srgstart.zhongdada.model.dto.question.QuestionContentDTO;
 import com.srgstart.zhongdada.model.entity.Question;
 import lombok.Data;
 import org.springframework.beans.BeanUtils;
+import springfox.documentation.spring.web.json.Json;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -24,14 +28,14 @@ public class QuestionVO implements Serializable {
     private Long id;
 
     /**
-     * 标题
+     * 题目内容（json格式）
      */
-    private String title;
+    private List<QuestionContentDTO> questionContent;
 
     /**
-     * 内容
+     * 应用 id
      */
-    private String content;
+    private Long appId;
 
     /**
      * 创建用户 id
@@ -47,11 +51,6 @@ public class QuestionVO implements Serializable {
      * 更新时间
      */
     private Date updateTime;
-
-    /**
-     * 标签列表
-     */
-    private List<String> tagList;
 
     /**
      * 创建用户信息
@@ -70,8 +69,8 @@ public class QuestionVO implements Serializable {
         }
         Question question = new Question();
         BeanUtils.copyProperties(questionVO, question);
-        List<String> tagList = questionVO.getTagList();
-        question.setTags(JSONUtil.toJsonStr(tagList));
+        List<QuestionContentDTO> questionContentDTO = questionVO.getQuestionContent();
+        question.setQuestionContent(JSONUtil.toJsonStr(questionContentDTO));
         return question;
     }
 
@@ -87,7 +86,10 @@ public class QuestionVO implements Serializable {
         }
         QuestionVO questionVO = new QuestionVO();
         BeanUtils.copyProperties(question, questionVO);
-        questionVO.setTagList(JSONUtil.toList(question.getTags(), String.class));
+        String questionContent = question.getQuestionContent();
+        if (questionContent != null) {
+            questionVO.setQuestionContent(JSONUtil.toList(questionContent, QuestionContentDTO.class));
+        }
         return questionVO;
     }
 }
