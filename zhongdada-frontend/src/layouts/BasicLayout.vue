@@ -32,8 +32,11 @@ import GlobalHeader from "@/components/GlobalHeader.vue";
   box-shadow: #eee 1px 1px 5px;
 }
 #BasicLayout .content {
+  max-width: 1400px;
+  width: 100%;
   background: linear-gradient(to right, #fefefe, #fff);
-  margin-bottom: 28px;
+  margin: 0 auto 28px;
+  box-sizing: border-box;
   padding: 20px;
 }
 .footer {

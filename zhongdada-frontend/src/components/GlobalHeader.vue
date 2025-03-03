@@ -26,8 +26,11 @@
       </a-col>
       <a-col flex="100px">
         <div v-if="loginUserStore.loginUser.id">
-          {{ loginUserStore.loginUser.userName ?? "无名" }}
+          <a-avatar>
+            <img alt="avatar" :src="loginUserStore.loginUser.userAvatar" />
+          </a-avatar>
         </div>
+
         <div v-else>
           <a-button type="primary" href="/user/login">登录</a-button>
         </div>

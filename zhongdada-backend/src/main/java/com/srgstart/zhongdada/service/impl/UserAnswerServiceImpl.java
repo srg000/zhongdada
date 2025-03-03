@@ -59,15 +59,10 @@ public class UserAnswerServiceImpl extends ServiceImpl<UserAnswerMapper, UserAns
         ThrowUtils.throwIf(userAnswer == null, ErrorCode.PARAMS_ERROR);
         // 从对象中取值
         Long appId = userAnswer.getAppId();
-        Integer appType = userAnswer.getAppType();
-        Integer scoringStrategy = userAnswer.getScoringStrategy();
-
         // 创建数据时，参数不能为空
         if (add) {
             // 补充校验规则
-            ThrowUtils.throwIf(appId == null, ErrorCode.PARAMS_ERROR, "应用 id 不能为空");
-            ThrowUtils.throwIf(AppTypeEnum.getEnumByValue(appType) == null, ErrorCode.PARAMS_ERROR, "应用类型非法");
-            ThrowUtils.throwIf(AppScoringStrategyEnum.getEnumByValue(scoringStrategy) == null, ErrorCode.PARAMS_ERROR, "应用策略非法");
+            ThrowUtils.throwIf(appId == null || appId <= 0, ErrorCode.PARAMS_ERROR, "appId 非法");
         }
         // 修改数据时，有参数则校验
         // 补充校验规则

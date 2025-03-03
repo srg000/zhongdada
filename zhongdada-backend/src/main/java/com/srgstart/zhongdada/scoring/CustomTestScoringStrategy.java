@@ -23,7 +23,7 @@ import java.util.Map;
  * @create 2025/02/08 15:55
  * @description 自定义测评类应用评分策略
  */
-@ScoringStrategyConfig(appType = 0, scoringStrategy = 0)
+@ScoringStrategyConfig(appType = 1, scoringStrategy = 0)
 public class CustomTestScoringStrategy implements ScoringStrategy {
 
     @Resource

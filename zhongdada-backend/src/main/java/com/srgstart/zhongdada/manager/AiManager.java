@@ -24,14 +24,10 @@ public class AiManager {
     @Resource
     private ClientV4 clientV4;
 
-    /**
-     * 稳定的随机数
-     */
+    // 稳定的随机数
     private static final float STABLE_TEMPERATURE = 0.05f;
 
-    /**
-     * 不稳定的随机数
-     */
+    // 不稳定的随机数
     private static final float UNSTABLE_TEMPERATURE = 0.99f;
 
     /**
@@ -105,7 +101,7 @@ public class AiManager {
                 .build();
         try {
             ModelApiResponse invokeModelApiResp = clientV4.invokeModelApi(chatCompletionRequest);
-            return invokeModelApiResp.getData().getChoices().get(0).toString();
+            return invokeModelApiResp.getData().getChoices().get(0).getMessage().getContent().toString();
         } catch (Exception e) {
             e.printStackTrace();
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, e.getMessage());
