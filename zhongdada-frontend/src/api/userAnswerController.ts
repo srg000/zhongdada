@@ -47,6 +47,19 @@ export async function editUserAnswerUsingPost(
   });
 }
 
+/** generateUserAnswerId GET /api/userAnswer/generate/userAnswerId */
+export async function generateUserAnswerIdUsingGet(options?: {
+  [key: string]: any;
+}) {
+  return request<API.BaseResponseLong_>(
+    "/api/userAnswer/generate/userAnswerId",
+    {
+      method: "GET",
+      ...(options || {}),
+    }
+  );
+}
+
 /** getUserAnswerVOById GET /api/userAnswer/get/vo */
 export async function getUserAnswerVoByIdUsingGet(
   // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)

@@ -7,6 +7,7 @@ import com.srgstart.zhongdada.common.BaseResponse;
 import com.srgstart.zhongdada.common.DeleteRequest;
 import com.srgstart.zhongdada.common.ErrorCode;
 import com.srgstart.zhongdada.common.ResultUtils;
+import com.srgstart.zhongdada.config.VipSchedulerConfig;
 import com.srgstart.zhongdada.constant.UserConstant;
 import com.srgstart.zhongdada.exception.BusinessException;
 import com.srgstart.zhongdada.exception.ThrowUtils;
@@ -20,13 +21,22 @@ import com.srgstart.zhongdada.model.vo.QuestionVO;
 import com.srgstart.zhongdada.service.AppService;
 import com.srgstart.zhongdada.service.QuestionService;
 import com.srgstart.zhongdada.service.UserService;
+import com.zhipu.oapi.service.v4.model.ModelData;
+import io.reactivex.Flowable;
+import io.reactivex.Scheduler;
+import io.reactivex.schedulers.Schedulers;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 题目接口
@@ -50,6 +60,9 @@ public class QuestionController {
 
     @Resource
     private AiManager aiManager;
+
+    @Resource
+    private Scheduler vipScheduler;
 
     // region 增删改查
 
@@ -311,6 +324,157 @@ public class QuestionController {
         String json = result.substring(start, end + 1);
         List<QuestionContentDTO> questionContentDTOList = JSONUtil.toList(json, QuestionContentDTO.class);
         return ResultUtils.success(questionContentDTOList);
+    }
+
+    @GetMapping("/ai_generate/sse")
+    public SseEmitter aiGenerateQuestionSSE(AiGenerateQuestionRequest aiGenerateQuestionRequest, HttpServletRequest request) {
+        ThrowUtils.throwIf(aiGenerateQuestionRequest == null, ErrorCode.PARAMS_ERROR);
+        // 获取参数
+        Long appId = aiGenerateQuestionRequest.getAppId();
+        int questionNumber = aiGenerateQuestionRequest.getQuestionNumber();
+        int optionNumber = aiGenerateQuestionRequest.getOptionNumber();
+        // 获取应用信息
+        App app = appService.getById(appId);
+        ThrowUtils.throwIf(app == null, ErrorCode.NOT_FOUND_ERROR);
+        // 封装 Prompt
+        String userMessage = getGenerateQuestionUserMessage(app, questionNumber, optionNumber);
+        // 建立 SSE 连接对象，0表示永不超时
+        SseEmitter sseEmitter = new SseEmitter(0L);
+
+        // AI 生成，SSE流式返回。使用RxJava接管
+        Flowable<ModelData> modelDataFlowable =
+                aiManager.doStreamRequest(GENERATE_QUESTION_SYSTEM_MESSAGE, userMessage, null);
+        // 左括号计数器，除了默认值外，当回归为0时，表示左括号等于右括号，可以截取
+        AtomicInteger counter = new AtomicInteger(0);
+
+        // 拿到当前登录用户
+        User loginUser = userService.getLoginUser(request);
+        Scheduler scheduler = Schedulers.io();
+        if ("vip".equals(loginUser.getUserRole())) {
+            scheduler = vipScheduler;
+        }
+        // 拼接题目
+        StringBuilder stringBuilder = new StringBuilder();
+        modelDataFlowable
+                .subscribeOn(scheduler)
+                // 拿到流式中的数据部分
+                .map(modeldata -> modeldata.getChoices().get(0).getDelta().getContent())
+                // 将字符串中非法字符去掉
+                .map(message -> message.replaceAll("\\s", ""))
+                // 去除空字符
+                .filter(StringUtils::isNotBlank)
+                // 使用flatMap 流式展平，把字符串变为可迭代的 字符数组
+                .flatMap(message -> {
+                    List<Character> charList = new ArrayList<>();
+                    for (char c : message.toCharArray()) {
+                        charList.add(c);
+                    }
+                    return Flowable.fromIterable(charList);
+                })
+                // 拼接题目
+                .doOnNext(c -> {
+                    // 如果 c == '{',计数器 + 1
+                    if (c == '{') {
+                        counter.addAndGet(1);
+                    }
+                    if (counter.get() > 0) {
+                        stringBuilder.append(c);
+                    }
+                    if (c == '}') {
+                        counter.addAndGet(-1);
+                        if (counter.get() == 0) {
+                            // 可以拼接题目，并且通过SSE 返回给前端
+                            sseEmitter.send(stringBuilder.toString());
+                            // 重置，准备拼接下一道题
+                            stringBuilder.setLength(0);
+                        }
+                    }
+                })
+                .doOnError((e) -> log.error("SSE ERROR", e))
+                .doOnComplete(sseEmitter::complete)
+                .subscribe();
+
+        return sseEmitter;
+    }
+
+    /**
+     * 仅 测试使用
+     * @param aiGenerateQuestionRequest
+     * @param isVip
+     * @return
+     */
+    @Deprecated
+    @GetMapping("/ai_generate/sse/test")
+    public SseEmitter aiGenerateQuestionSSETest(AiGenerateQuestionRequest aiGenerateQuestionRequest, boolean isVip) {
+        ThrowUtils.throwIf(aiGenerateQuestionRequest == null, ErrorCode.PARAMS_ERROR);
+        // 获取参数
+        Long appId = aiGenerateQuestionRequest.getAppId();
+        int questionNumber = aiGenerateQuestionRequest.getQuestionNumber();
+        int optionNumber = aiGenerateQuestionRequest.getOptionNumber();
+        // 获取应用信息
+        App app = appService.getById(appId);
+        ThrowUtils.throwIf(app == null, ErrorCode.NOT_FOUND_ERROR);
+        // 封装 Prompt
+        String userMessage = getGenerateQuestionUserMessage(app, questionNumber, optionNumber);
+        // 建立 SSE 连接对象，0表示永不超时
+        SseEmitter sseEmitter = new SseEmitter(0L);
+
+        // AI 生成，SSE流式返回。使用RxJava接管
+        Flowable<ModelData> modelDataFlowable =
+                aiManager.doStreamRequest(GENERATE_QUESTION_SYSTEM_MESSAGE, userMessage, null);
+        // 左括号计数器，除了默认值外，当回归为0时，表示左括号等于右括号，可以截取
+        AtomicInteger counter = new AtomicInteger(0);
+        Scheduler scheduler = Schedulers.single();
+        if (isVip) {
+            scheduler = vipScheduler;
+        }
+        // 拼接题目
+        StringBuilder stringBuilder = new StringBuilder();
+        modelDataFlowable
+                .subscribeOn(scheduler)
+                // 拿到流式中的数据部分
+                .map(modeldata -> modeldata.getChoices().get(0).getDelta().getContent())
+                // 将字符串中非法字符去掉
+                .map(message -> message.replaceAll("\\s", ""))
+                // 去除空字符
+                .filter(StringUtils::isNotBlank)
+                // 使用flatMap 流式展平，把字符串变为可迭代的 字符数组
+                .flatMap(message -> {
+                    List<Character> charList = new ArrayList<>();
+                    for (char c : message.toCharArray()) {
+                        charList.add(c);
+                    }
+                    return Flowable.fromIterable(charList);
+                })
+                // 拼接题目
+                .doOnNext(c -> {
+                    // 如果 c == '{',计数器 + 1
+                    if (c == '{') {
+                        counter.addAndGet(1);
+                    }
+                    if (counter.get() > 0) {
+                        stringBuilder.append(c);
+                    }
+                    if (c == '}') {
+                        counter.addAndGet(-1);
+                        if (counter.get() == 0) {
+                            System.out.println("==="+Thread.currentThread().getName());
+                            if (!isVip) {
+                                Thread.sleep(10000L);
+                            }
+
+                            // 可以拼接题目，并且通过SSE 返回给前端
+                            sseEmitter.send(stringBuilder.toString());
+                            // 重置，准备拼接下一道题
+                            stringBuilder.setLength(0);
+                        }
+                    }
+                })
+                .doOnError((e) -> log.error("SSE ERROR", e))
+                .doOnComplete(sseEmitter::complete)
+                .subscribe();
+
+        return sseEmitter;
     }
 
     // endregion
