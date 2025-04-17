@@ -85,7 +85,7 @@ npm run dev:weapp
 2. 题目详情页面
 ![题目详情页面](images/题目详情页面.png)
 3. 答题界面
-![答题界面](images/答题界面.png)
+![答题界面](images\答题页面.png)
 4. 评分管理页面
 ![评分管理页面](images/评分管理页面.png)
 5. 创建题目页面
